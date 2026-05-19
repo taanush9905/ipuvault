@@ -1,0 +1,230 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BRANCHES, EXAM_TYPES, SEMESTERS, YEARS } from "@/lib/constants";
+import { useSubjects } from "@/lib/use-subjects";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Upload as UploadIcon, FileText, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { Navigate } from "react-router-dom";
+import { z } from "zod";
+
+const MAX_SIZE = 20 * 1024 * 1024;
+
+const schema = z.object({
+  branch: z.string().min(1),
+  semester: z.coerce.number().int().min(1).max(8),
+  subject: z.string().min(1, "Subject required"),
+  year: z.coerce.number().int().min(2000).max(2100),
+  exam_type: z.string().min(1),
+  title: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
+});
+
+export default function Upload() {
+  const nav = useNavigate();
+  const { user, profile, loading } = useAuth();
+  const [branch, setBranch] = useState(profile?.branch || "");
+  const [semester, setSemester] = useState<string>(profile?.semester ? String(profile.semester) : "");
+  const [subject, setSubject] = useState("");
+  const [year, setYear] = useState(String(new Date().getFullYear()));
+  const [examType, setExamType] = useState("End Term");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { subjects } = useSubjects(branch, semester ? Number(semester) : null);
+
+  function pickFile(f: File | null) {
+    if (!f) return;
+    if (f.type !== "application/pdf") return toast.error("PDF files only");
+    if (f.size > MAX_SIZE) return toast.error("File must be under 20MB");
+    setFile(f);
+  }
+
+  function addTag() {
+    const t = tagInput.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
+    if (!t || tags.includes(t)) { setTagInput(""); return; }
+    setTags([...tags, t]); setTagInput("");
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file) return toast.error("Select a PDF file");
+    const parsed = schema.safeParse({ branch, semester, subject, year, exam_type: examType, title, description });
+    if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+
+    setSubmitting(true);
+    try {
+      const fileName = `${parsed.data.branch}/${parsed.data.semester}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("papers").upload(fileName, file, {
+        contentType: "application/pdf",
+      });
+      if (upErr) throw upErr;
+
+      const d = parsed.data;
+      const { error: insErr } = await supabase.from("papers").insert({
+        branch: d.branch,
+        semester: d.semester,
+        section: "-",
+        subject: d.subject,
+        year: d.year,
+        exam_type: d.exam_type,
+        title: d.title || null,
+        description: d.description || null,
+        tags,
+        file_path: fileName,
+        file_size: file.size,
+        uploader_name: profile?.display_name || "Anonymous",
+        uploader_id: user.id,
+        approved: false,
+      });
+      if (insErr) throw insErr;
+
+      toast.success("Submitted for admin review. It'll appear once approved.");
+      nav("/");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/auth" replace />;
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Upload a paper</h1>
+        <p className="text-muted-foreground mt-1">PDFs only, 20MB max. Uploads are reviewed by an admin before going live.</p>
+      </div>
+
+      <form onSubmit={submit} className="space-y-6 rounded-xl border bg-card p-6">
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => { e.preventDefault(); setDragOver(false); pickFile(e.dataTransfer.files[0]); }}
+          className={`relative rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragOver ? "border-primary bg-accent" : "border-border"}`}
+        >
+          {file ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <FileText className="h-8 w-8 text-primary shrink-0" />
+                <div className="min-w-0 text-left">
+                  <p className="font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+              <Button type="button" variant="ghost" size="icon" onClick={() => setFile(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              <UploadIcon className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <p className="font-medium">Drag & drop a PDF here</p>
+              <p className="text-xs text-muted-foreground mb-3">or click to browse</p>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => pickFile(e.target.files?.[0] || null)}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </>
+          )}
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Branch">
+            <Select value={branch} onValueChange={(v) => { setBranch(v); setSubject(""); }}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>{BRANCHES.map((b) => <SelectItem key={b.code} value={b.code}>{b.code} — {b.name}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Semester">
+            <Select value={semester} onValueChange={(v) => { setSemester(v); setSubject(""); }}>
+              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Subject">
+            {subjects.length > 0 ? (
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>{subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            ) : (
+              <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject name" />
+            )}
+          </Field>
+          <Field label="Exam year">
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{YEARS.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Exam type">
+            <Select value={examType} onValueChange={setExamType}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{EXAM_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+        </div>
+
+        <Field label="Title (optional)">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. DBMS End Sem 2024 with answers" maxLength={200} />
+        </Field>
+
+        <Field label="Description (optional)">
+          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Anything you want to note…" maxLength={1000} rows={3} />
+        </Field>
+
+        <Field label="Tags">
+          <div className="flex gap-2">
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+              placeholder="important, solved, handwritten…"
+            />
+            <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+          </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map((t) => (
+                <Badge key={t} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter((x) => x !== t))}>
+                  #{t} <X className="h-3 w-3 ml-1" />
+                </Badge>
+              ))}
+            </div>
+          )}
+        </Field>
+
+        <Button type="submit" disabled={submitting} className="w-full h-11">
+          {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Upload paper
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</Label>
+      {children}
+    </div>
+  );
+}
