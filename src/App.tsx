@@ -14,6 +14,7 @@ import RepeatedQuestions from "./pages/RepeatedQuestions";
 import AdminApprovals from "./pages/AdminApprovals";
 import AdminSubjects from "./pages/AdminSubjects";
 import NotFound from "./pages/NotFound";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
       <TooltipProvider>
         <Sonner />
         <BrowserRouter>
+         <Analytics />
           <AuthProvider>
             <AppLayout>
               <Routes>
