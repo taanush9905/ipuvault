@@ -56,6 +56,27 @@ export type Database = {
           },
         ]
       }
+      feedbacks: {
+        Row: {
+          created_at: string
+          feedback: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          feedback: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       datesheets: {
         Row: {
           branch: string

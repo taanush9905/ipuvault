@@ -107,7 +107,7 @@ export const SUBJECTS_BY_BRANCH_SEM: Record<string, Record<number, string[]>> = 
   CE: build("CE", CE_SEMS),
 };
 
-export const YEARS = Array.from({ length: 7 }, (_, i) => 2025 - i);
+export const YEARS = [2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019];
 
 export function getSubjects(branch: string, semester: number): string[] {
   return SUBJECTS_BY_BRANCH_SEM[branch]?.[semester] ?? [];

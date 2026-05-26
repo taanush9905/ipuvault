@@ -28,7 +28,17 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
   const [showComments, setShowComments] = useState(false);
 
   useEffect(() => {
-    if (!paper) return;
+    if (!paper) {
+      setUrl(null);
+      setComments([]);
+      setDraft("");
+      setShowComments(false);
+      return;
+    }
+    setUrl(null);
+    setComments([]);
+    setDraft("");
+    setShowComments(false);
     const { data } = supabase.storage.from("papers").getPublicUrl(paper.file_path);
     setUrl(data.publicUrl);
     loadComments(paper.id);
@@ -46,10 +56,10 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
   async function handleDownload() {
     if (!paper || !url) return;
     try {
-      const res = await fetch(url);
-      const blob = await res.blob();
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
       a.download = `${paper.subject}-${paper.year}-${paper.exam_type}.pdf`;
       document.body.appendChild(a);
       a.click();
@@ -87,7 +97,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
 
   return (
     <Dialog open={!!paper} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent hideClose className="max-w-6xl w-[95vw] h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {paper && (
           <>
             <div className="flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0">
@@ -115,7 +125,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
                   <Download className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Download</span>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={onClose}>
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close viewer">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -132,6 +142,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
               <div className="flex-1 bg-muted">
                 {url && (
                   <iframe
+                    key={paper.id}
                     src={`${url}#toolbar=0&navpanes=0`}
                     title={paper.subject}
                     className="w-full h-full"

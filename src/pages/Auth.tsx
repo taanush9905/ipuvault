@@ -25,26 +25,66 @@ export default function Auth() {
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      if (error.message.toLowerCase().includes("invalid login")) {
+        toast.error("Invalid email or password. If you just signed up, confirm your email or use the admin account from setup-admin.sql.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
     toast.success("Welcome back");
   }
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email,
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const { data, error } = await supabase.auth.signUp({
+      email: normalizedEmail,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: name || email.split("@")[0] },
+        data: { full_name: name.trim() || normalizedEmail.split("@")[0] },
       },
     });
+
+    if (error) {
+      setBusy(false);
+      return toast.error(error.message);
+    }
+
+    if (data.session) {
+      setBusy(false);
+      toast.success("Account created — you're signed in");
+      return;
+    }
+
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Account created — you're signed in");
+
+    if (!signInErr) {
+      toast.success("Account created — you're signed in");
+      return;
+    }
+
+    toast.info(
+      "Account may be created. If sign-in fails, open Supabase → Authentication → Providers → Email and turn OFF «Confirm email», then try Sign in.",
+      { duration: 8000 }
+    );
   }
 
   return (
@@ -55,7 +95,8 @@ export default function Auth() {
             <GraduationCap className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold">Welcome to PYQ Vault</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sign in to upload, vote and track exams.</p>
+          <p className="text-sm text-muted-foreground mt-1">Sign in for profile, admin tools, and voting.</p>
+          <p className="text-xs text-muted-foreground mt-2">Uploading papers does not require an account.</p>
         </div>
 
         <Tabs defaultValue="signin">
@@ -67,11 +108,11 @@ export default function Auth() {
             <form onSubmit={signIn} className="space-y-3 mt-4">
               <div>
                 <Label className="text-xs">Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
               </div>
               <div>
                 <Label className="text-xs">Password</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -83,15 +124,15 @@ export default function Auth() {
             <form onSubmit={signUp} className="space-y-3 mt-4">
               <div>
                 <Label className="text-xs">Name</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
               </div>
               <div>
                 <Label className="text-xs">Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
               </div>
               <div>
                 <Label className="text-xs">Password</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" />
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { ArrowLeft, ChevronUp, Flame, Loader2, Plus, Repeat2, Trash2, Filter, BookOpen } from "lucide-react";
+import { ArrowLeft, ChevronUp, Flame, Loader2, Plus, Repeat2, Trash2, Filter, BookOpen, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type RQ = {
@@ -56,6 +56,7 @@ export default function RepeatedQuestions() {
   const [search, setSearch] = useState("");
   const [myVotes, setMyVotes] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
+  const [detailTopic, setDetailTopic] = useState<RQ | null>(null);
 
   async function load() {
     setLoading(true);
@@ -197,8 +198,8 @@ export default function RepeatedQuestions() {
       ) : (
         <div className="rounded-2xl border bg-card overflow-hidden shadow-soft">
           {/* Table head */}
-          <div className="hidden md:grid grid-cols-[1fr_220px_110px_60px_56px] gap-3 px-4 py-3 border-b bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-            <div>Topic</div><div>Years it came</div><div className="text-center">Repeats</div><div className="text-center">Votes</div><div></div>
+          <div className="hidden md:grid grid-cols-[1fr_220px_110px_60px_120px_56px] gap-3 px-4 py-3 border-b bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+            <div>Topic</div><div>Years it came</div><div className="text-center">Repeats</div><div className="text-center">Votes</div><div className="text-center">Details</div><div></div>
           </div>
           <ul className="divide-y">
             {visible.map((q, idx) => {
@@ -209,7 +210,7 @@ export default function RepeatedQuestions() {
               return (
                 <li
                   key={q.id}
-                  className="grid grid-cols-1 md:grid-cols-[1fr_220px_110px_60px_56px] gap-3 px-4 py-4 hover:bg-accent/30 transition-colors"
+                  className="grid grid-cols-1 md:grid-cols-[1fr_220px_110px_60px_120px_56px] gap-3 px-4 py-4 hover:bg-accent/30 transition-colors"
                   style={{ animation: "pop .35s ease-out", animationDelay: `${idx * 25}ms` }}
                 >
                   {/* topic */}
@@ -218,8 +219,14 @@ export default function RepeatedQuestions() {
                       {q.unit_number && <Badge variant="secondary" className="text-[10px]">U{q.unit_number}{unitName && ` · ${unitName}`}</Badge>}
                       {q.marks && <Badge variant="outline" className="text-[10px]">{q.marks} marks</Badge>}
                     </div>
-                    <p className="text-sm font-medium leading-snug whitespace-pre-wrap">{q.question}</p>
-                    {q.notes && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{q.notes}</p>}
+                    <button
+                      type="button"
+                      onClick={() => setDetailTopic(q)}
+                      className="text-sm font-medium leading-snug whitespace-pre-wrap text-left hover:text-primary transition-colors"
+                    >
+                      {q.question}
+                    </button>
+                    {q.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{q.notes}</p>}
                     <div className="text-[11px] text-muted-foreground mt-1.5">By {q.contributor_name}</div>
                   </div>
                   {/* years */}
@@ -249,6 +256,11 @@ export default function RepeatedQuestions() {
                       <span className="text-xs font-semibold">{q.upvotes}</span>
                     </button>
                   </div>
+                  <div className="flex items-center justify-end md:justify-center">
+                    <Button variant="outline" size="sm" className="rounded-lg text-xs gap-1" onClick={() => setDetailTopic(q)}>
+                      <Eye className="h-3.5 w-3.5" /> View questions
+                    </Button>
+                  </div>
                   {/* delete */}
                   <div className="flex md:items-center md:justify-center justify-end gap-2">
                     <span className={cn("md:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-bold", heat(reps))}>
@@ -266,7 +278,77 @@ export default function RepeatedQuestions() {
           </ul>
         </div>
       )}
+
+      <TopicDetailDialog topic={detailTopic} units={units} onClose={() => setDetailTopic(null)} />
     </div>
+  );
+}
+
+function TopicDetailDialog({
+  topic,
+  units,
+  onClose,
+}: {
+  topic: RQ | null;
+  units: Unit[];
+  onClose: () => void;
+}) {
+  if (!topic) return null;
+  const unitName = units.find((u) => u.unit_number === topic.unit_number)?.unit_name;
+  const sortedYears = [...(topic.years || [])].sort((a, b) => b - a);
+
+  return (
+    <Dialog open={!!topic} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-left pr-8">{topic.question}</DialogTitle>
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {topic.unit_number != null && (
+              <Badge variant="secondary" className="text-[10px]">
+                Unit {topic.unit_number}{unitName ? ` · ${unitName}` : ""}
+              </Badge>
+            )}
+            {topic.marks && <Badge variant="outline" className="text-[10px]">{topic.marks} marks</Badge>}
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Previous year appearances
+            </h4>
+            {sortedYears.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">No years recorded yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {sortedYears.map((y, i) => (
+                  <li key={y} className="flex items-start gap-3 rounded-xl border bg-muted/40 px-3 py-2.5">
+                    <span className="text-xs font-bold text-primary shrink-0">Q{i + 1}</span>
+                    <div>
+                      <span className="font-semibold text-sm">{y}</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">{topic.question}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {topic.notes && (
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Notes & PYQ details
+              </h4>
+              <div className="rounded-xl border bg-accent/30 p-4 text-sm whitespace-pre-wrap leading-relaxed">
+                {topic.notes}
+              </div>
+            </div>
+          )}
+
+          <p className="text-[11px] text-muted-foreground">Contributed by {topic.contributor_name}</p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -335,8 +417,14 @@ function AddDialog({
         </div>
         <div><Label className="text-xs">Years it appeared (comma separated)</Label>
           <Input value={years} onChange={(e) => setYears(e.target.value)} placeholder="2021, 2022, 2024" /></div>
-        <div><Label className="text-xs">Notes (optional)</Label>
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
+        <div><Label className="text-xs">Details — PYQs, sub-questions, explanations (optional)</Label>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={8}
+            placeholder={"Add question-wise PYQ references, e.g.:\nQ1 (2023) — Explain 3NF with example\nQ2 (2022) — BCNF decomposition\nImportant: frequently 8–10 marks"}
+            className="min-h-[160px]"
+          /></div>
         <Button type="submit" disabled={busy} className="w-full">
           {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}Submit
         </Button>

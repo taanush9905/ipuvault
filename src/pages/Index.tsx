@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { SelectionCard } from "@/components/selection-card";
-import { BRANCHES, EXAM_TYPES, SEMESTERS } from "@/lib/constants";
+import { BRANCHES, EXAM_TYPES, SEMESTERS, YEARS } from "@/lib/constants";
+import { AboutSection, ContactSection } from "@/components/about-section";
+import { FeedbackForm } from "@/components/feedback-form";
+import { ColorThemePicker } from "@/components/color-theme-picker";
+import { useTheme } from "@/components/theme-provider";
 import { useSubjects } from "@/lib/use-subjects";
 import { supabase } from "@/integrations/supabase/client";
 import { PaperCard, type Paper } from "@/components/paper-card";
@@ -20,6 +24,7 @@ type Datesheet = {
 };
 
 export default function Browse() {
+  const { colorTheme, setColorTheme } = useTheme();
   const [semester, setSemester] = useState<string>("");
   const [branch, setBranch] = useState<string>("");
   const [subjectsOpen, setSubjectsOpen] = useState(false);
@@ -107,7 +112,7 @@ export default function Browse() {
             <SelectTrigger className="w-full sm:w-32"><SelectValue placeholder="Year" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All years</SelectItem>
-              {[2025, 2024, 2023, 2022, 2021, 2020, 2019].map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+              {YEARS.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={examType} onValueChange={setExamType}>
@@ -298,6 +303,19 @@ export default function Browse() {
 
       <PaperViewer paper={open} onClose={() => setOpen(null)} />
 
+      <section className="pt-8 space-y-8 border-t">
+        <ColorThemePicker value={colorTheme} onChange={setColorTheme} />
+        <AboutSection />
+        <section id="feedback" className="scroll-mt-24">
+          <div className="rounded-3xl border bg-card/80 backdrop-blur-sm p-8 sm:p-10 shadow-soft">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">Feedback</p>
+            <h2 className="text-2xl font-bold mb-2">Send us your thoughts</h2>
+            <p className="text-sm text-muted-foreground mb-6">No login required — your message goes straight to the admin.</p>
+            <FeedbackForm />
+          </div>
+        </section>
+        <ContactSection />
+      </section>
     </div>
   );
 }

@@ -27,6 +27,13 @@ Migrations were never applied (Supabase CLI is not required).
 
 Also enable **Email** auth: Authentication → Providers → Email → Enable.
 
+### Extra features (`setup-features.sql`)
+
+Run `supabase/setup-features.sql` for:
+
+- Public **feedback** form (no login)
+- **Anonymous paper uploads** (no login on Upload page)
+
 ### Admin account
 
 Run `supabase/setup-admin.sql` in the SQL Editor (after `setup-all.sql`).
