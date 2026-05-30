@@ -13,10 +13,13 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ArrowLeft, ChevronUp, Flame, Loader2, Plus, Repeat2, Trash2, Filter, BookOpen, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BranchMultiPicker } from "@/components/branch-multi-picker";
+import { useBranches } from "@/lib/use-branches";
 
 type RQ = {
   id: string;
   branch: string;
+  branches?: string[] | null;
   semester: number;
   subject: string;
   unit_number: number | null;
@@ -62,12 +65,15 @@ export default function RepeatedQuestions() {
     setLoading(true);
     const [{ data: rq }, { data: u }] = await Promise.all([
       supabase.from("repeated_questions").select("*")
-        .eq("branch", branch).eq("semester", semester).eq("subject", subject),
+        .eq("semester", semester).eq("subject", subject),
       supabase.from("subject_units").select("unit_number, unit_name")
         .eq("branch", branch).eq("semester", semester).eq("subject", subject)
         .order("unit_number"),
     ]);
-    setItems((rq as RQ[]) || []);
+    const list = ((rq as RQ[]) || []).filter(
+      (r) => r.branch === branch || (r.branches || []).includes(branch)
+    );
+    setItems(list);
     setUnits((u as Unit[]) || []);
     if (user) {
       const { data: v } = await supabase.from("repeated_question_votes").select("question_id").eq("user_id", user.id);
@@ -371,6 +377,8 @@ function AddDialog({
   user: any; contributorName: string; onSaved: () => void;
 }) {
   const nav = useNavigate();
+  const { branches: branchOptions } = useBranches();
+  const [selectedBranches, setSelectedBranches] = useState<string[]>([branch]);
   const [question, setQuestion] = useState("");
   const [unit, setUnit] = useState<string>("");
   const [marks, setMarks] = useState("");
@@ -382,19 +390,30 @@ function AddDialog({
     e.preventDefault();
     if (!user) { toast.error("Sign in to contribute"); nav("/auth"); return; }
     if (!question.trim()) return toast.error("Enter the topic / question");
+    if (!selectedBranches.length) return toast.error("Select at least one branch");
     setBusy(true);
     const yrs = years.split(",").map((y) => Number(y.trim())).filter((n) => !isNaN(n) && n > 1900);
+    const primary = selectedBranches[0];
     const { error } = await supabase.from("repeated_questions").insert({
-      branch, semester, subject,
+      branch: primary,
+      branches: selectedBranches,
+      semester,
+      subject,
       unit_number: unit ? Number(unit) : null,
       question: question.trim(),
       marks: marks ? Number(marks) : null,
-      years: yrs, notes: notes.trim() || null,
-      contributor_id: user.id, contributor_name: contributorName,
+      years: yrs,
+      notes: notes.trim() || null,
+      contributor_id: user.id,
+      contributor_name: contributorName,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Topic added to the pad");
+    if (error) return toast.error(error.message.includes("branches") ? "Run setup-premium.sql for multi-branch topics" : error.message);
+    toast.success(
+      selectedBranches.length > 1
+        ? `Topic added across ${selectedBranches.length} branches`
+        : "Topic added to the pad"
+    );
     onSaved();
   }
 
@@ -402,6 +421,12 @@ function AddDialog({
     <DialogContent>
       <DialogHeader><DialogTitle>Add a topic</DialogTitle></DialogHeader>
       <form onSubmit={save} className="space-y-3">
+        <div>
+          <Label className="text-xs">Branches (multi-select)</Label>
+          <div className="mt-1.5">
+            <BranchMultiPicker branches={branchOptions} selected={selectedBranches} onChange={setSelectedBranches} />
+          </div>
+        </div>
         <div><Label className="text-xs">Topic / Question</Label>
           <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} rows={4} placeholder="e.g. Explain normalization with examples" /></div>
         <div className="grid grid-cols-2 gap-3">

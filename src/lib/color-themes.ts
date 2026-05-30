@@ -1,20 +1,4 @@
-export type ColorThemeId =
-  | "fresh-green"
-  | "forest"
-  | "mint"
-  | "lime"
-  | "ocean-teal"
-  | "sky"
-  | "classic-blue"
-  | "indigo"
-  | "royal-purple"
-  | "violet"
-  | "sunset-gold"
-  | "amber"
-  | "coral"
-  | "rose"
-  | "ruby"
-  | "slate";
+export type ColorThemeId = string;
 
 export type ColorTheme = {
   id: ColorThemeId;
@@ -143,6 +127,60 @@ export const COLOR_THEMES: ColorTheme[] = [
   theme("slate", "Slate", ["#f8fafc", "#475569"],
     { primary: "215 25% 40%", glow: "215 22% 50%", bg: "210 40% 98%", fg: "222 30% 12%", card: "0 0% 100%", secondary: "210 30% 94%", muted: "210 25% 92%", mutedFg: "215 14% 45%", accent: "215 25% 90%", accentFg: "215 25% 32%", border: "210 22% 88%" },
     { primary: "215 22% 55%", glow: "215 20% 62%", bg: "222 28% 7%", fg: "210 20% 96%", card: "222 26% 10%", secondary: "222 22% 14%", muted: "222 20% 12%", mutedFg: "210 12% 62%", accent: "215 22% 16%", accentFg: "215 22% 68%", border: "222 18% 15%" }),
+  theme("neon-green", "Neon Green", ["#ecfdf5", "#22c55e"],
+    { primary: "142 76% 42%", glow: "142 80% 55%", bg: "140 50% 97%", fg: "150 30% 10%", card: "0 0% 100%", secondary: "140 35% 92%", muted: "140 30% 90%", mutedFg: "150 12% 40%", accent: "142 55% 88%", accentFg: "142 76% 30%", border: "140 25% 85%" },
+    { primary: "142 70% 50%", glow: "142 75% 58%", bg: "150 28% 5%", fg: "140 20% 96%", card: "150 25% 8%", secondary: "150 22% 13%", muted: "150 20% 11%", mutedFg: "140 12% 60%", accent: "142 35% 14%", accentFg: "142 70% 62%", border: "150 18% 14%" }),
+  theme("emerald", "Emerald", ["#d1fae5", "#059669"],
+    { primary: "160 84% 35%", glow: "160 78% 48%", bg: "155 45% 97%", fg: "165 30% 10%", card: "0 0% 100%", secondary: "155 35% 92%", muted: "155 30% 90%", mutedFg: "165 14% 40%", accent: "160 50% 88%", accentFg: "160 84% 28%", border: "155 25% 85%" },
+    { primary: "160 75% 45%", glow: "160 70% 55%", bg: "165 28% 6%", fg: "155 20% 95%", card: "165 26% 9%", secondary: "165 22% 14%", muted: "165 20% 12%", mutedFg: "155 12% 60%", accent: "160 32% 15%", accentFg: "160 75% 60%", border: "165 18% 15%" }),
+  theme("teal", "Teal", ["#ccfbf1", "#14b8a6"],
+    { primary: "174 72% 40%", glow: "174 68% 52%", bg: "175 45% 97%", fg: "185 30% 10%", card: "0 0% 100%", secondary: "175 35% 92%", muted: "175 30% 90%", mutedFg: "185 14% 40%", accent: "174 50% 88%", accentFg: "174 72% 30%", border: "175 25% 85%" },
+    { primary: "174 68% 48%", glow: "174 65% 56%", bg: "185 30% 6%", fg: "175 20% 95%", card: "185 28% 9%", secondary: "185 24% 14%", muted: "185 22% 12%", mutedFg: "175 12% 60%", accent: "174 32% 15%", accentFg: "174 68% 62%", border: "185 18% 15%" }),
+  theme("cyan", "Cyan", ["#cffafe", "#06b6d4"],
+    { primary: "189 85% 42%", glow: "189 80% 52%", bg: "190 45% 97%", fg: "200 30% 10%", card: "0 0% 100%", secondary: "190 35% 92%", muted: "190 30% 90%", mutedFg: "200 14% 40%", accent: "189 55% 88%", accentFg: "189 85% 32%", border: "190 25% 85%" },
+    { primary: "189 80% 50%", glow: "189 75% 58%", bg: "200 32% 6%", fg: "190 20% 95%", card: "200 28% 9%", secondary: "200 24% 14%", muted: "200 22% 12%", mutedFg: "190 12% 60%", accent: "189 32% 15%", accentFg: "189 80% 65%", border: "200 18% 15%" }),
+  theme("azure", "Azure", ["#e0f2fe", "#0ea5e9"],
+    { primary: "200 90% 45%", glow: "200 85% 55%", bg: "205 45% 98%", fg: "215 30% 10%", card: "0 0% 100%", secondary: "205 35% 93%", muted: "205 30% 91%", mutedFg: "215 14% 42%", accent: "200 55% 90%", accentFg: "200 90% 35%", border: "205 25% 87%" },
+    { primary: "200 85% 52%", glow: "200 80% 60%", bg: "215 32% 7%", fg: "205 20% 96%", card: "215 28% 10%", secondary: "215 24% 14%", muted: "215 22% 12%", mutedFg: "205 12% 62%", accent: "200 32% 16%", accentFg: "200 85% 68%", border: "215 20% 16%" }),
+  theme("navy", "Navy", ["#dbeafe", "#1e40af"],
+    { primary: "224 76% 42%", glow: "224 72% 52%", bg: "220 40% 98%", fg: "230 35% 10%", card: "0 0% 100%", secondary: "220 30% 94%", muted: "220 28% 92%", mutedFg: "230 14% 42%", accent: "224 50% 92%", accentFg: "224 76% 32%", border: "220 24% 88%" },
+    { primary: "224 72% 55%", glow: "224 68% 62%", bg: "230 35% 7%", fg: "220 20% 96%", card: "230 30% 10%", secondary: "230 26% 14%", muted: "230 24% 12%", mutedFg: "220 12% 62%", accent: "224 32% 16%", accentFg: "224 72% 72%", border: "230 20% 16%" }),
+  theme("fuchsia", "Fuchsia", ["#fae8ff", "#c026d3"],
+    { primary: "292 84% 48%", glow: "292 78% 58%", bg: "295 45% 98%", fg: "300 30% 10%", card: "0 0% 100%", secondary: "295 35% 94%", muted: "295 30% 92%", mutedFg: "300 14% 42%", accent: "292 55% 92%", accentFg: "292 84% 38%", border: "295 25% 88%" },
+    { primary: "292 78% 58%", glow: "292 74% 65%", bg: "300 30% 7%", fg: "295 20% 96%", card: "300 28% 10%", secondary: "300 24% 14%", muted: "300 22% 12%", mutedFg: "295 12% 62%", accent: "292 32% 16%", accentFg: "292 78% 70%", border: "300 20% 16%" }),
+  theme("pink", "Pink", ["#fce7f3", "#db2777"],
+    { primary: "330 80% 52%", glow: "330 75% 60%", bg: "335 50% 98%", fg: "340 30% 10%", card: "0 0% 100%", secondary: "335 40% 94%", muted: "335 35% 92%", mutedFg: "340 14% 42%", accent: "330 55% 92%", accentFg: "330 80% 40%", border: "335 28% 88%" },
+    { primary: "330 75% 58%", glow: "330 70% 65%", bg: "340 28% 7%", fg: "335 20% 96%", card: "340 26% 10%", secondary: "340 22% 14%", muted: "340 20% 12%", mutedFg: "335 12% 62%", accent: "330 32% 16%", accentFg: "330 75% 68%", border: "340 18% 15%" }),
+  theme("crimson", "Crimson", ["#ffe4e6", "#be123c"],
+    { primary: "350 78% 48%", glow: "350 72% 56%", bg: "350 45% 98%", fg: "355 30% 10%", card: "0 0% 100%", secondary: "350 35% 94%", muted: "350 30% 92%", mutedFg: "355 14% 42%", accent: "350 55% 92%", accentFg: "350 78% 38%", border: "350 25% 88%" },
+    { primary: "350 72% 55%", glow: "350 68% 62%", bg: "355 28% 7%", fg: "350 20% 96%", card: "355 26% 10%", secondary: "355 22% 14%", muted: "355 20% 12%", mutedFg: "350 12% 62%", accent: "350 32% 16%", accentFg: "350 72% 68%", border: "355 18% 15%" }),
+  theme("bronze", "Bronze", ["#fef3c7", "#b45309"],
+    { primary: "28 85% 42%", glow: "32 88% 52%", bg: "40 50% 97%", fg: "30 28% 10%", card: "0 0% 100%", secondary: "40 40% 92%", muted: "40 35% 90%", mutedFg: "30 14% 40%", accent: "28 60% 88%", accentFg: "28 85% 32%", border: "40 28% 86%" },
+    { primary: "32 82% 50%", glow: "32 78% 58%", bg: "30 24% 7%", fg: "40 20% 96%", card: "30 22% 10%", secondary: "30 20% 14%", muted: "30 18% 12%", mutedFg: "40 12% 60%", accent: "28 32% 15%", accentFg: "32 82% 62%", border: "30 17% 15%" }),
+  theme("olive", "Olive", ["#f7fee7", "#4d7c0f"],
+    { primary: "82 70% 38%", glow: "82 65% 48%", bg: "85 45% 97%", fg: "90 28% 10%", card: "0 0% 100%", secondary: "85 38% 92%", muted: "85 33% 90%", mutedFg: "90 14% 40%", accent: "82 50% 86%", accentFg: "82 70% 28%", border: "85 26% 85%" },
+    { primary: "82 65% 46%", glow: "82 60% 54%", bg: "90 25% 7%", fg: "85 20% 95%", card: "90 23% 10%", secondary: "90 20% 14%", muted: "90 18% 12%", mutedFg: "85 12% 60%", accent: "82 30% 15%", accentFg: "82 65% 58%", border: "90 17% 15%" }),
+  theme("graphite", "Graphite", ["#f1f5f9", "#334155"],
+    { primary: "215 20% 35%", glow: "215 18% 45%", bg: "210 35% 98%", fg: "220 25% 10%", card: "0 0% 100%", secondary: "210 28% 94%", muted: "210 24% 92%", mutedFg: "220 12% 42%", accent: "215 20% 88%", accentFg: "215 20% 28%", border: "210 22% 87%" },
+    { primary: "215 18% 52%", glow: "215 16% 58%", bg: "220 25% 7%", fg: "210 18% 95%", card: "220 22% 10%", secondary: "220 20% 14%", muted: "220 18% 12%", mutedFg: "210 12% 60%", accent: "215 18% 16%", accentFg: "215 18% 65%", border: "220 17% 15%" }),
+  theme("midnight", "Midnight", ["#e2e8f0", "#1e293b"],
+    { primary: "222 47% 25%", glow: "222 40% 38%", bg: "210 40% 98%", fg: "222 40% 8%", card: "0 0% 100%", secondary: "214 30% 94%", muted: "214 28% 92%", mutedFg: "215 16% 42%", accent: "222 35% 90%", accentFg: "222 47% 20%", border: "214 24% 88%" },
+    { primary: "217 33% 55%", glow: "217 30% 62%", bg: "222 40% 5%", fg: "210 25% 96%", card: "222 35% 8%", secondary: "217 28% 12%", muted: "217 26% 10%", mutedFg: "215 15% 62%", accent: "217 28% 14%", accentFg: "217 33% 70%", border: "217 24% 14%" }),
+  theme("electric", "Electric Blue", ["#dbeafe", "#3b82f6"],
+    { primary: "221 83% 53%", glow: "221 90% 65%", bg: "214 50% 98%", fg: "222 40% 10%", card: "0 0% 100%", secondary: "214 40% 94%", muted: "214 35% 92%", mutedFg: "222 14% 42%", accent: "221 70% 94%", accentFg: "221 83% 40%", border: "214 28% 88%" },
+    { primary: "221 80% 60%", glow: "221 85% 68%", bg: "222 40% 7%", fg: "214 20% 96%", card: "222 35% 10%", secondary: "222 30% 14%", muted: "222 28% 12%", mutedFg: "214 12% 62%", accent: "221 35% 16%", accentFg: "221 80% 72%", border: "222 20% 16%" }),
+  theme("aurora", "Aurora", ["#ecfeff", "#2dd4bf"],
+    { primary: "172 66% 50%", glow: "190 80% 55%", bg: "180 45% 97%", fg: "195 30% 10%", card: "0 0% 100%", secondary: "180 35% 92%", muted: "180 30% 90%", mutedFg: "195 14% 40%", accent: "172 50% 88%", accentFg: "172 66% 35%", border: "180 25% 85%" },
+    { primary: "175 60% 48%", glow: "190 70% 55%", bg: "195 30% 6%", fg: "180 20% 95%", card: "195 28% 9%", secondary: "195 24% 14%", muted: "195 22% 12%", mutedFg: "180 12% 60%", accent: "172 32% 15%", accentFg: "175 60% 62%", border: "195 18% 15%" }),
+  theme("sakura", "Sakura", ["#fff1f2", "#f472b6"],
+    { primary: "340 82% 58%", glow: "350 85% 65%", bg: "345 50% 98%", fg: "350 28% 10%", card: "0 0% 100%", secondary: "345 40% 94%", muted: "345 35% 92%", mutedFg: "350 14% 42%", accent: "340 60% 92%", accentFg: "340 82% 45%", border: "345 28% 88%" },
+    { primary: "340 78% 62%", glow: "350 80% 68%", bg: "350 28% 7%", fg: "345 20% 96%", card: "350 26% 10%", secondary: "350 22% 14%", muted: "350 20% 12%", mutedFg: "345 12% 62%", accent: "340 32% 16%", accentFg: "340 78% 72%", border: "350 18% 15%" }),
+  theme("copper", "Copper", ["#ffedd5", "#c2410c"],
+    { primary: "20 90% 46%", glow: "25 92% 55%", bg: "35 50% 97%", fg: "25 28% 10%", card: "0 0% 100%", secondary: "35 40% 92%", muted: "35 35% 90%", mutedFg: "25 14% 40%", accent: "20 65% 88%", accentFg: "20 90% 35%", border: "35 28% 86%" },
+    { primary: "22 88% 52%", glow: "25 85% 60%", bg: "25 24% 7%", fg: "35 20% 96%", card: "25 22% 10%", secondary: "25 20% 14%", muted: "25 18% 12%", mutedFg: "35 12% 60%", accent: "20 32% 15%", accentFg: "22 88% 62%", border: "25 17% 15%" }),
+  theme("moss", "Moss", ["#f0fdf4", "#15803d"],
+    { primary: "142 72% 32%", glow: "142 65% 42%", bg: "138 42% 96%", fg: "150 28% 10%", card: "0 0% 100%", secondary: "138 32% 91%", muted: "138 28% 89%", mutedFg: "150 12% 38%", accent: "142 48% 86%", accentFg: "142 72% 24%", border: "138 24% 84%" },
+    { primary: "142 68% 40%", glow: "142 62% 48%", bg: "150 26% 6%", fg: "138 18% 94%", card: "150 24% 8%", secondary: "150 20% 13%", muted: "150 18% 11%", mutedFg: "138 12% 58%", accent: "142 30% 14%", accentFg: "142 68% 55%", border: "150 17% 14%" }),
 ];
 
 export const DEFAULT_COLOR_THEME: ColorThemeId = "fresh-green";

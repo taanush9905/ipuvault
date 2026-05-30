@@ -118,9 +118,9 @@ export default function Profile() {
       </section>
 
       <section>
-        <h2 className="font-semibold mb-4 flex items-center gap-2"><UploadIcon className="h-4 w-4 text-primary" /> Your uploads</h2>
+        <h2 className="font-semibold mb-4 flex items-center gap-2"><UploadIcon className="h-4 w-4 text-primary" /> Your contributions</h2>
         {uploads.length === 0 ? (
-          <p className="text-sm text-muted-foreground rounded-xl border border-dashed p-8 text-center">Nothing uploaded yet. Share a paper from the Upload tab.</p>
+          <p className="text-sm text-muted-foreground rounded-xl border border-dashed p-8 text-center">Nothing contributed yet. Share a resource from the Contribute tab.</p>
         ) : (
           <div className="grid sm:grid-cols-2 gap-3">{uploads.map((p) => <PaperCard key={p.id} paper={p} onOpen={setOpen} />)}</div>
         )}

@@ -84,9 +84,19 @@
     scroll-behavior: smooth;
   }
 
+  :root {
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
   }
 }
 
@@ -116,5 +126,15 @@
     border-color: transparent;
     background-size: 200% 100%;
     animation: shimmer 3s linear infinite;
+  }
+
+  .glass-panel {
+    @apply border border-border/70 bg-card/70 backdrop-blur-xl shadow-soft;
+  }
+
+  .hero-title-3d {
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.22);
   }
 }

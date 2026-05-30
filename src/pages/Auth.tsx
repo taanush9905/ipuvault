@@ -94,9 +94,9 @@ export default function Auth() {
           <div className="h-12 w-12 mx-auto rounded-xl gradient-primary grid place-items-center text-primary-foreground mb-3">
             <GraduationCap className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold">Welcome to PYQ Vault</h1>
+          <h1 className="text-2xl font-bold">Welcome to IPU Vault</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in for profile, admin tools, and voting.</p>
-          <p className="text-xs text-muted-foreground mt-2">Uploading papers does not require an account.</p>
+          <p className="text-xs text-muted-foreground mt-2">Contributing resources does not require an account.</p>
         </div>
 
         <Tabs defaultValue="signin">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Download, Share2, Flag, MessageSquare, Send } from "lucide-react";
+import { X, Download, Share2, Flag, MessageSquare, Send, Eye, Loader2 } from "lucide-react";
+import { resolvePaperUrl, resolvePaperUrlFast } from "@/lib/paper-url-cache";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { initials, timeAgo } from "@/lib/format";
@@ -23,6 +24,9 @@ type PaperWithDesc = Paper & { description?: string | null };
 export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: () => void }) {
   const { profile } = useAuth();
   const [url, setUrl] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [viewCount, setViewCount] = useState(0);
+  const [downloadCount, setDownloadCount] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -30,41 +34,60 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
   useEffect(() => {
     if (!paper) {
       setUrl(null);
+      setLoadError(false);
       setComments([]);
       setDraft("");
       setShowComments(false);
       return;
     }
-    setUrl(null);
+
+    setViewCount(paper.views ?? 0);
+    setDownloadCount(paper.downloads);
     setComments([]);
     setDraft("");
     setShowComments(false);
-    const { data } = supabase.storage.from("papers").getPublicUrl(paper.file_path);
-    setUrl(data.publicUrl);
-    loadComments(paper.id);
+    setLoadError(false);
+
+    if (!paper.file_path) {
+      setUrl(null);
+      setLoadError(true);
+      return;
+    }
+
+    // Show PDF immediately from public URL
+    setUrl(resolvePaperUrlFast(paper.file_path));
+
+    void supabase.rpc("increment_paper_views", { paper_id: paper.id }).then(({ error }) => {
+      if (!error) setViewCount((c) => c + 1);
+    });
+
+    void resolvePaperUrl(paper.file_path)
+      .then((signed) => setUrl(signed))
+      .catch(() => setLoadError(true));
+
+    void supabase
+      .from("comments")
+      .select("id,paper_id,author_name,content,created_at")
+      .eq("paper_id", paper.id)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => setComments((data as Comment[]) || []));
   }, [paper]);
 
-  async function loadComments(paperId: string) {
-    const { data } = await supabase
-      .from("comments")
-      .select("*")
-      .eq("paper_id", paperId)
-      .order("created_at", { ascending: true });
-    setComments((data as Comment[]) || []);
-  }
-
   async function handleDownload() {
-    if (!paper || !url) return;
+    if (!paper) return;
+    const href = url || resolvePaperUrlFast(paper.file_path);
+    if (!href) return;
     try {
       const a = document.createElement("a");
-      a.href = url;
+      a.href = href;
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.download = `${paper.subject}-${paper.year}-${paper.exam_type}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      await supabase.rpc("increment_paper_downloads", { paper_id: paper.id });
+      void supabase.rpc("increment_paper_downloads", { paper_id: paper.id });
+      setDownloadCount((c) => c + 1);
       toast.success("Download started");
     } catch {
       toast.error("Could not download");
@@ -73,13 +96,11 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
 
   function handleShare() {
     if (!paper) return;
-    const link = `${window.location.origin}/?paper=${paper.id}`;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(`${window.location.origin}/?paper=${paper.id}`);
     toast.success("Link copied to clipboard");
   }
 
   async function handleReport() {
-    if (!paper) return;
     toast.success("Reported. Thanks for the heads up!");
   }
 
@@ -88,7 +109,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
     const { data, error } = await supabase
       .from("comments")
       .insert({ paper_id: paper.id, author_name: profile?.display_name || "Anonymous", content: draft.trim() })
-      .select()
+      .select("id,paper_id,author_name,content,created_at")
       .single();
     if (error) { toast.error("Could not post comment"); return; }
     setComments((c) => [...c, data as Comment]);
@@ -103,10 +124,12 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
             <div className="flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0">
               <div className="min-w-0">
                 <div className="font-semibold truncate">{paper.title || paper.subject}</div>
-                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <div className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
                   <Badge variant="secondary">{paper.exam_type}</Badge>
                   <span>{paper.year}</span>
                   <span>· {paper.uploader_name}</span>
+                  <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{viewCount} views</span>
+                  <span className="inline-flex items-center gap-1"><Download className="h-3 w-3" />{downloadCount} downloads</span>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -121,7 +144,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
                 <Button variant="ghost" size="sm" onClick={handleReport}>
                   <Flag className="h-4 w-4" />
                 </Button>
-                <Button variant="default" size="sm" onClick={handleDownload}>
+                <Button variant="default" size="sm" onClick={handleDownload} disabled={loadError && !url}>
                   <Download className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Download</span>
                 </Button>
@@ -139,14 +162,20 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
             )}
 
             <div className="flex-1 flex min-h-0">
-              <div className="flex-1 bg-muted">
+              <div className="flex-1 bg-muted relative">
+                {loadError && !url && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+                    <p className="text-sm text-muted-foreground">Could not load this PDF.</p>
+                    <Button variant="outline" onClick={handleDownload}>Try download</Button>
+                  </div>
+                )}
                 {url && (
-                  <iframe
-                    key={paper.id}
-                    src={`${url}#toolbar=0&navpanes=0`}
-                    title={paper.subject}
-                    className="w-full h-full"
-                  />
+                  <iframe key={`${paper.id}-${url.slice(-24)}`} src={url} title={paper.subject} className="w-full h-full border-0" />
+                )}
+                {url && !loadError && (
+                  <div className="absolute bottom-3 right-3 pointer-events-none opacity-0 animate-pulse">
+                    <Loader2 className="h-4 w-4 hidden" />
+                  </div>
                 )}
               </div>
               {showComments && (
@@ -159,7 +188,7 @@ export function PaperViewer({ paper, onClose }: { paper: Paper | null; onClose: 
                   </div>
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {comments.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center mt-8">No comments yet. Start the discussion.</p>
+                      <p className="text-sm text-muted-foreground text-center mt-8">No comments yet.</p>
                     )}
                     {comments.map((c) => (
                       <div key={c.id} className="flex gap-3">

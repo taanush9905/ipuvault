@@ -21,15 +21,14 @@ export function AboutSection() {
     <section id="about" className="scroll-mt-24">
       <div className="rounded-3xl border bg-card/80 backdrop-blur-sm p-8 sm:p-10 shadow-soft">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">About us</p>
-        <h2 className="text-2xl sm:text-3xl font-bold mb-4">PYQ Vault</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4">IPU Vault</h2>
         <p className="text-muted-foreground leading-relaxed max-w-3xl">
-          PYQ Vault helps BTech students browse previous-year question papers, exam datesheets, and
-          most-repeated topics — organized by branch, semester, and subject in one simple place.
+          IPU Vault helps BTech students browse previous-year question papers, exam datesheets, and
+          most-repeated topics — organized by branch, semester, and subject in one premium, distraction-free place.
         </p>
         <p className="text-muted-foreground leading-relaxed max-w-3xl mt-4">
-          This platform is managed and maintained by <strong className="text-foreground">Taanush Kumar</strong> with
-          the goal of helping students access organized academic resources, PYQs, important topics, and
-          preparation material in a simple and efficient manner.
+          Maintained by <strong className="text-foreground">VaultTeam</strong> with a mission to simplify access to PYQs,
+          important topics, and preparation material for every branch.
         </p>
         <div className="mt-8">
           <Button
@@ -65,7 +64,7 @@ export function ContactSection() {
             size="icon"
             variant="outline"
             className="h-12 w-12 rounded-xl border-border hover:scale-105 transition-transform shadow-sm"
-            aria-label="Email Taanush Kumar"
+            aria-label="Email VaultTeam"
           >
             <a href={GMAIL_URL}>
               <GmailIcon className="h-7 w-7" />

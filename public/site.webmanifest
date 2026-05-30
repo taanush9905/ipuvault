@@ -1,0 +1,17 @@
+{
+  "name": "IPU Vault",
+  "short_name": "IPU Vault",
+  "description": "Student-first academic platform for PYQs and exam resources",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f0c",
+  "theme_color": "#0a0f0c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
