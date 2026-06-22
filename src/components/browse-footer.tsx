@@ -36,30 +36,20 @@ export function BrowseFooter() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Links</p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#about" className="hover:text-foreground transition-colors">About Us</a></li>
-              <li><a href="#contact" className="hover:text-foreground transition-colors">Contact Us</a></li>
+              <li><a href="/#about" className="hover:text-foreground transition-colors">About Us</a></li>
+              <li><a href="/#contact" className="hover:text-foreground transition-colors">Contact Us</a></li>
               <li><Link to="/contribute" className="hover:text-foreground transition-colors">Contribute</Link></li>
-              <li><a href="#feedback" className="hover:text-foreground transition-colors">Feedback</a></li>
+              <li><a href="/#feedback" className="hover:text-foreground transition-colors">Feedback</a></li>
             </ul>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Legal</p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#privacy" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="#terms" className="hover:text-foreground transition-colors">Terms of Use</a></li>
+              <li><Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
-
-        <section id="privacy" className="scroll-mt-24 glass-panel rounded-2xl p-6 text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground mb-2">Privacy Policy</p>
-          <p>We store only what you submit (papers, feedback, profile). We do not sell your data. Contact VaultTeam to request deletion.</p>
-        </section>
-
-        <section id="terms" className="scroll-mt-24 glass-panel rounded-2xl p-6 text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground mb-2">Terms of Use</p>
-          <p>Use IPU Vault for personal academic study. Do not upload copyrighted material you do not have rights to share.</p>
-        </section>
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">VaultTeam</p>

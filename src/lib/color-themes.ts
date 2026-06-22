@@ -79,9 +79,9 @@ function theme(
 }
 
 export const COLOR_THEMES: ColorTheme[] = [
-  theme("fresh-green", "Fresh Green", ["#f0fdf4", "#16a34a"],
-    { primary: "142 71% 38%", glow: "142 65% 50%", bg: "140 40% 98%", fg: "150 30% 12%", card: "0 0% 100%", secondary: "140 30% 94%", muted: "140 25% 93%", mutedFg: "150 12% 42%", accent: "142 50% 92%", accentFg: "142 71% 28%", border: "140 20% 88%" },
-    { primary: "142 65% 45%", glow: "142 60% 55%", bg: "150 25% 6%", fg: "140 20% 96%", card: "150 22% 9%", secondary: "150 20% 14%", muted: "150 18% 13%", mutedFg: "140 12% 62%", accent: "142 35% 16%", accentFg: "142 65% 65%", border: "150 18% 16%" }),
+  theme("fresh-green", "Premium Gold", ["#050816", "#F4C542"],
+    { primary: "44 89% 61%", glow: "44 89% 61%", bg: "229 63% 5%", fg: "0 0% 100%", card: "220 49% 8%", secondary: "220 49% 12%", muted: "220 40% 12%", mutedFg: "223 24% 78%", accent: "44 89% 61% / 0.15", accentFg: "44 89% 61%", border: "220 40% 14%" },
+    { primary: "44 89% 61%", glow: "44 89% 61%", bg: "229 63% 5%", fg: "0 0% 100%", card: "220 49% 8%", secondary: "220 49% 12%", muted: "220 40% 12%", mutedFg: "223 24% 78%", accent: "44 89% 61% / 0.15", accentFg: "44 89% 61%", border: "220 40% 14%" }),
   theme("forest", "Forest", ["#ecfdf5", "#047857"],
     { primary: "160 84% 30%", glow: "160 70% 42%", bg: "152 45% 97%", fg: "160 40% 10%", card: "0 0% 100%", secondary: "152 35% 92%", muted: "152 30% 91%", mutedFg: "160 15% 40%", accent: "152 40% 90%", accentFg: "160 84% 25%", border: "152 25% 85%" },
     { primary: "160 70% 42%", glow: "160 65% 50%", bg: "160 30% 6%", fg: "152 20% 95%", card: "160 28% 9%", secondary: "160 22% 14%", muted: "160 20% 12%", mutedFg: "152 12% 60%", accent: "160 30% 15%", accentFg: "160 70% 60%", border: "160 20% 15%" }),

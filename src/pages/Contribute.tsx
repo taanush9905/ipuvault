@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { BRANCHES, EXAM_TYPES, SEMESTERS, YEARS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Send, Loader2, HeartHandshake } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { HoverButton } from "@/components/ui/hover-button";
 
 const schema = z.object({
   requester_name: z.string().min(1, "Your name is required"),
@@ -102,16 +102,16 @@ export default function Contribute() {
 
       <form onSubmit={submit} className="glass-panel rounded-3xl p-6 sm:p-8 space-y-5">
         <Field label="Your name">
-          <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Name for attribution" />
+          <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Name for attribution" className="rounded-xl h-11 text-xs" />
         </Field>
         <Field label="Email (optional)">
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="so we can reach you" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="so we can reach you" className="rounded-xl h-11 text-xs" />
         </Field>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Branch">
             <Select value={branch} onValueChange={setBranch}>
-              <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
               <SelectContent>
                 {BRANCHES.map((b) => <SelectItem key={b.code} value={b.code}>{b.code}</SelectItem>)}
               </SelectContent>
@@ -119,7 +119,7 @@ export default function Contribute() {
           </Field>
           <Field label="Semester">
             <Select value={semester} onValueChange={setSemester}>
-              <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
               <SelectContent>
                 {SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
               </SelectContent>
@@ -128,29 +128,29 @@ export default function Contribute() {
         </div>
 
         <Field label="Subject">
-          <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Data Structures" />
+          <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Data Structures" className="rounded-xl h-11 text-xs" />
         </Field>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Year">
             <Select value={year} onValueChange={setYear}>
-              <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
               <SelectContent>{YEARS.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Exam type">
             <Select value={examType} onValueChange={setExamType}>
-              <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Optional" /></SelectTrigger>
               <SelectContent>{EXAM_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
         </div>
 
         <Field label="Resource title">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. DBMS End Term 2024 PYQ" />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. DBMS End Term 2024 PYQ" className="rounded-xl h-11 text-xs" />
         </Field>
         <Field label="Details">
-          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Links, file names, or extra context…" rows={3} />
+          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Links, file names, or extra context…" rows={3} className="rounded-2xl text-xs" />
         </Field>
         <Field label="Contribution message">
           <Textarea
@@ -159,13 +159,14 @@ export default function Contribute() {
             placeholder="Describe what you're contributing and how we can access it (Drive link, etc.)"
             rows={4}
             required
+            className="rounded-2xl text-xs"
           />
         </Field>
 
-        <Button type="submit" disabled={submitting} className="w-full h-11 rounded-xl">
+        <HoverButton type="submit" disabled={submitting} className="w-full h-11 rounded-xl">
           {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
           Submit contribution request
-        </Button>
+        </HoverButton>
       </form>
     </div>
   );

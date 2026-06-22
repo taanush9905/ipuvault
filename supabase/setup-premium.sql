@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.contribution_requests (
   title TEXT,
   description TEXT,
   message TEXT,
+  file_path TEXT,
   status TEXT NOT NULL DEFAULT 'pending',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -82,3 +83,7 @@ ALTER TABLE public.repeated_questions
 UPDATE public.repeated_questions
 SET branches = ARRAY[branch]
 WHERE branches IS NULL OR branches = '{}';
+
+-- Apply migrations if table already existed
+ALTER TABLE public.contribution_requests ADD COLUMN IF NOT EXISTS file_path TEXT;
+UPDATE storage.buckets SET file_size_limit = 26214400 WHERE id = 'papers';

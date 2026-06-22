@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { GraduationCap, Loader2 } from "lucide-react";
+import { HoverButton } from "@/components/ui/hover-button";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -88,56 +88,60 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] grid place-items-center px-4">
-      <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-soft">
-        <div className="text-center mb-6">
-          <div className="h-12 w-12 mx-auto rounded-xl gradient-primary grid place-items-center text-primary-foreground mb-3">
+    <div className="min-h-[calc(100vh-12rem)] grid place-items-center px-4">
+      <div className="w-full max-w-md glass-panel rounded-3xl p-8 shadow-elegant relative overflow-hidden">
+        <div className="absolute top-0 right-0 h-28 w-28 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="text-center mb-6 relative z-10">
+          <div className="h-12 w-12 mx-auto rounded-xl bg-foreground text-background grid place-items-center mb-3 shadow-soft">
             <GraduationCap className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold">Welcome to IPU Vault</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sign in for profile, admin tools, and voting.</p>
-          <p className="text-xs text-muted-foreground mt-2">Contributing resources does not require an account.</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Welcome to IPU Vault</h1>
+          <p className="text-xs text-muted-foreground mt-1">Sign in for profile settings, admin features, and voting.</p>
+          <p className="text-[10px] text-muted-foreground/80 mt-1">Contributing academic resources does not require an account.</p>
         </div>
 
-        <Tabs defaultValue="signin">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="signin">Sign in</TabsTrigger>
-            <TabsTrigger value="signup">Sign up</TabsTrigger>
+        <Tabs defaultValue="signin" className="relative z-10">
+          <TabsList className="grid grid-cols-2 w-full rounded-xl bg-secondary/50 p-1">
+            <TabsTrigger value="signin" className="rounded-lg text-xs font-semibold">Sign in</TabsTrigger>
+            <TabsTrigger value="signup" className="rounded-lg text-xs font-semibold">Sign up</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="signin">
-            <form onSubmit={signIn} className="space-y-3 mt-4">
-              <div>
-                <Label className="text-xs">Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+            <form onSubmit={signIn} className="space-y-4 mt-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Address</Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" className="rounded-xl h-11 text-xs" />
               </div>
-              <div>
-                <Label className="text-xs">Password</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" className="rounded-xl h-11 text-xs" />
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>
+              <HoverButton type="submit" className="w-full h-11 rounded-xl font-bold mt-2 shadow-soft" disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Sign in
-              </Button>
+              </HoverButton>
             </form>
           </TabsContent>
+          
           <TabsContent value="signup">
-            <form onSubmit={signUp} className="space-y-3 mt-4">
-              <div>
-                <Label className="text-xs">Name</Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
+            <form onSubmit={signUp} className="space-y-4 mt-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Full Name</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Rahul Sharma" autoComplete="name" className="rounded-xl h-11 text-xs" />
               </div>
-              <div>
-                <Label className="text-xs">Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Address</Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" className="rounded-xl h-11 text-xs" />
               </div>
-              <div>
-                <Label className="text-xs">Password</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password (min 6 characters)</Label>
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" className="rounded-xl h-11 text-xs" />
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>
+              <HoverButton type="submit" className="w-full h-11 rounded-xl font-bold mt-2 shadow-soft" disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Create account
-              </Button>
+              </HoverButton>
             </form>
           </TabsContent>
         </Tabs>

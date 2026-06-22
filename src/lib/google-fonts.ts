@@ -17,11 +17,6 @@ export function loadGoogleFont(family: string) {
 export function preloadCommonFonts() {
   [
     "Inter",
-    "Plus Jakarta Sans",
-    "Space Grotesk",
-    "Playfair Display",
-    "JetBrains Mono",
-    "Poppins",
-    "Merriweather",
+    "Geist",
   ].forEach(loadGoogleFont);
 }

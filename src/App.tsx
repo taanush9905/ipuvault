@@ -16,6 +16,9 @@ import AdminApprovals from "./pages/AdminApprovals";
 import AdminSubjects from "./pages/AdminSubjects";
 import AdminBranches from "./pages/AdminBranches";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import About from "./pages/About";
 import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/contribute" element={<Contribute />} />
                 <Route path="/upload" element={<Upload />} />
                 <Route path="/datesheet" element={<Datesheet />} />
@@ -40,6 +44,8 @@ const App = () => (
                 <Route path="/admin/approvals" element={<AdminApprovals />} />
                 <Route path="/admin/subjects" element={<AdminSubjects />} />
                 <Route path="/admin/branches" element={<AdminBranches />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

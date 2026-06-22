@@ -4,7 +4,6 @@ import { EXAM_TYPES, SEMESTERS, YEARS } from "@/lib/constants";
 import { useSubjects } from "@/lib/use-subjects";
 import { useBranches } from "@/lib/use-branches";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -16,6 +15,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { HoverButton } from "@/components/ui/hover-button";
+import { Button } from "@/components/ui/button";
 
 const MAX_SIZE = 20 * 1024 * 1024;
 
@@ -88,7 +89,7 @@ export default function Upload() {
     setSubmitting(true);
     try {
       const d = parsed.data;
-      const fileName = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const fileName = `papers/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("papers").upload(fileName, file, {
         contentType: "application/pdf",
       });
@@ -123,7 +124,7 @@ export default function Upload() {
 
       toast.success(
         d.branches.length > 1
-          ? `Published across ${d.branches.length} branches (one file, synced group).`
+          ? `Published across ${d.branches.length} branches (synced file references).`
           : "Paper published successfully."
       );
       nav("/");
@@ -136,11 +137,11 @@ export default function Upload() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Admin upload</h1>
-        <p className="text-muted-foreground mt-1">
-          Publish PDFs once and share across multiple branches. Same file reference — no duplicate storage.
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="glass-panel rounded-3xl p-6 sm:p-8">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Admin Upload Portal</h1>
+        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+          Publish documents directly. Single file reference will automatically sync across multiple selected branches.
         </p>
       </div>
 
@@ -150,8 +151,8 @@ export default function Upload() {
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => { e.preventDefault(); setDragOver(false); pickFile(e.dataTransfer.files[0]); }}
           className={cn(
-            "relative rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
-            dragOver ? "border-primary bg-primary/5" : "border-border"
+            "relative rounded-2xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer",
+            dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
           )}
         >
           {file ? (
@@ -159,19 +160,19 @@ export default function Upload() {
               <div className="flex items-center gap-3 min-w-0">
                 <FileText className="h-8 w-8 text-primary shrink-0" />
                 <div className="min-w-0 text-left">
-                  <p className="font-medium truncate">{file.name}</p>
+                  <p className="font-semibold text-sm truncate text-foreground">{file.name}</p>
                   <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
               </div>
-              <Button type="button" variant="ghost" size="icon" onClick={() => setFile(null)}>
+              <Button type="button" variant="ghost" size="icon" onClick={() => setFile(null)} className="h-8 w-8 rounded-full">
                 <X className="h-4 w-4" />
               </Button>
             </div>
           ) : (
             <>
-              <UploadIcon className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="font-medium">Drag & drop a PDF here</p>
-              <p className="text-xs text-muted-foreground mb-3">or click to browse · 20MB max</p>
+              <UploadIcon className="h-9 w-9 mx-auto text-muted-foreground mb-3" />
+              <p className="font-bold text-sm text-foreground">Drag & drop a PDF file here</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">or click to browse local files (max 20MB)</p>
               <input
                 type="file"
                 accept="application/pdf"
@@ -182,16 +183,16 @@ export default function Upload() {
           )}
         </div>
 
-        <Field label="Uploader name">
-          <Input value={uploaderName} onChange={(e) => setUploaderName(e.target.value)} required />
+        <Field label="Uploader attribution name">
+          <Input value={uploaderName} onChange={(e) => setUploaderName(e.target.value)} required className="rounded-xl h-11 text-xs" />
         </Field>
 
-        <Field label="Branches — multi-select">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+        <Field label="Target branches (multi-select)">
+          <div className="flex items-center gap-2 text-[10px] font-semibold text-primary uppercase mb-2">
             <Layers className="h-3.5 w-3.5" />
             {selectedBranches.length > 1
-              ? `Shared across ${selectedBranches.length} branches`
-              : "Select all branches where this paper applies"}
+              ? `Publishing to ${selectedBranches.length} branch catalogs`
+              : "Select target branches"}
           </div>
           <BranchMultiPicker branches={branches} selected={selectedBranches} onChange={setSelectedBranches} />
         </Field>
@@ -199,40 +200,40 @@ export default function Upload() {
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Semester">
             <Select value={semester} onValueChange={(v) => { setSemester(v); setSubject(""); }}>
-              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Subject">
             {subjects.length > 0 ? (
               <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>{subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
               </Select>
             ) : (
-              <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject name" />
+              <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject name" className="rounded-xl h-11 text-xs" />
             )}
           </Field>
           <Field label="Exam year">
             <Select value={year} onValueChange={setYear}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>{YEARS.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
           <Field label="Exam type">
             <Select value={examType} onValueChange={setExamType}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="rounded-xl h-11 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>{EXAM_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
         </div>
 
-        <Field label="Title (optional)">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. DBMS End Sem 2024" maxLength={200} />
+        <Field label="Resource Title (optional)">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. DBMS End Sem 2024" maxLength={200} className="rounded-xl h-11 text-xs" />
         </Field>
 
         <Field label="Description (optional)">
-          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Notes about this paper…" maxLength={1000} rows={3} />
+          <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Notes or metadata about this paper…" maxLength={1000} rows={3} className="rounded-2xl text-xs" />
         </Field>
 
         <Field label="Tags">
@@ -241,25 +242,26 @@ export default function Upload() {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-              placeholder="important, solved…"
+              placeholder="e.g. important, solved"
+              className="rounded-xl h-11 text-xs"
             />
-            <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+            <Button type="button" variant="outline" onClick={addTag} className="rounded-xl h-11 text-xs font-semibold px-4">Add Tag</Button>
           </div>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((t) => (
-                <Badge key={t} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter((x) => x !== t))}>
-                  #{t} <X className="h-3 w-3 ml-1" />
+                <Badge key={t} variant="secondary" className="cursor-pointer font-medium text-[10px] pl-2 py-0.5 rounded-lg" onClick={() => setTags(tags.filter((x) => x !== t))}>
+                  #{t} <X className="h-3 w-3 ml-1 text-muted-foreground hover:text-destructive" />
                 </Badge>
               ))}
             </div>
           )}
         </Field>
 
-        <Button type="submit" disabled={submitting} className="w-full h-11 rounded-xl">
-          {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+        <HoverButton type="submit" disabled={submitting} className="w-full h-11 rounded-xl">
+          {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UploadIcon className="h-4 w-4 mr-2" />}
           Publish paper
-        </Button>
+        </HoverButton>
       </form>
     </div>
   );
@@ -268,7 +270,7 @@ export default function Upload() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</Label>
+      <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-0.5">{label}</Label>
       {children}
     </div>
   );

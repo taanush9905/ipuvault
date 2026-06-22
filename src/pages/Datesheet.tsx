@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { countdown } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HoverButton } from "@/components/ui/hover-button";
+import { Button } from "@/components/ui/button";
 
 type Datesheet = {
   id: string;
@@ -72,16 +73,29 @@ export default function Datesheet() {
   }, [items, filterBranch, filterSem]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">Datesheet</h1>
-          <p className="text-muted-foreground mt-1">Exam schedule — branch is optional; leave empty for all branches.</p>
+    <div className="max-w-5xl mx-auto space-y-6">
+      
+      {/* Datesheet Header Card */}
+      <div className="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 h-40 w-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary font-medium">
+            <CalendarDays className="h-3.5 w-3.5" /> Official Schedules
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            Examination Datesheets
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            View countdowns and venues of exam schedules. Filter by your branch and semester.
+          </p>
         </div>
+
         {isAdmin ? (
           <Dialog open={openAdd} onOpenChange={setOpenAdd}>
             <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" />Post datesheet</Button>
+              <HoverButton variant="primary" className="rounded-xl shrink-0 self-start sm:self-center shadow-soft">
+                <Plus className="h-4 w-4" /> Post Datesheet
+              </HoverButton>
             </DialogTrigger>
             <DatesheetFormDialog
               branches={branches}
@@ -92,41 +106,62 @@ export default function Datesheet() {
             />
           </Dialog>
         ) : (
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5 rounded-lg border bg-muted px-3 py-2">
-            <ShieldAlert className="h-3.5 w-3.5" /> Only admins can post datesheets
+          <div className="text-xs text-muted-foreground flex items-center gap-2 rounded-xl border bg-secondary/30 px-3.5 py-2 shrink-0 self-start sm:self-center">
+            <ShieldAlert className="h-4 w-4 text-primary" /> Admins posting only
           </div>
         )}
       </div>
 
-      <div className="rounded-2xl border bg-card p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Select value={filterBranch} onValueChange={setFilterBranch}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All branches</SelectItem>
-            {branches.map((b) => <SelectItem key={b.code} value={b.code}>{b.code}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterSem} onValueChange={setFilterSem}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All semesters</SelectItem>
-            {SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Sem {s}</SelectItem>)}
-          </SelectContent>
-        </Select>
+      {/* Glass filters card */}
+      <div className="glass-panel rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">Branch Filter</span>
+          <Select value={filterBranch} onValueChange={setFilterBranch}>
+            <SelectTrigger className="rounded-xl h-11"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All branches</SelectItem>
+              {branches.map((b) => <SelectItem key={b.code} value={b.code}>{b.code}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">Semester Filter</span>
+          <Select value={filterSem} onValueChange={setFilterSem}>
+            <SelectTrigger className="rounded-xl h-11"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All semesters</SelectItem>
+              {SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}</div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-12 text-center">
-          <CalendarDays className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">No exams scheduled for this filter.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((d) => <DatesheetRow key={d.id} d={d} canEdit={isAdmin} branches={branches} onChange={load} />)}
-        </div>
-      )}
+      {/* Main schedule card */}
+      <div className="glass-panel rounded-3xl p-6 space-y-4">
+        <h2 className="text-lg font-bold flex items-center gap-2">
+          <CalendarDays className="h-4 w-4 text-primary" /> Exam Timelines
+        </h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Sorted by pinned status and soonest dates.
+        </p>
+
+        {loading ? (
+          <div className="space-y-3 pt-2">
+            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center">
+            <CalendarDays className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">No exams scheduled for this branch or semester.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 pt-2">
+            {filtered.map((d) => (
+              <DatesheetRow key={d.id} d={d} canEdit={isAdmin} branches={branches} onChange={load} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -141,7 +176,7 @@ function DatesheetRow({
   const colors = {
     past: "bg-muted text-muted-foreground border-border",
     today: "bg-warning/15 text-warning border-warning/30",
-    upcoming: "bg-accent text-accent-foreground border-primary/20",
+    upcoming: "bg-primary/10 text-primary border-primary/20",
   } as const;
 
   async function togglePin() {
@@ -164,48 +199,48 @@ function DatesheetRow({
 
   return (
     <>
-      <div className={cn("rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center gap-4 transition-colors bg-card", cd.status === "past" && "opacity-60")}>
-        <div className={cn("rounded-xl border px-3 py-2 text-center min-w-[88px]", colors[cd.status])}>
-          <div className="text-2xl font-bold leading-none">{new Date(d.exam_date).getDate()}</div>
-          <div className="text-[10px] uppercase tracking-wide mt-0.5">
+      <div className={cn("rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center gap-4 transition-colors bg-card hover:border-primary/30 shadow-sm", cd.status === "past" && "opacity-60")}>
+        <div className={cn("rounded-xl border px-3 py-2.5 text-center min-w-[90px] shadow-xs", colors[cd.status])}>
+          <div className="text-2xl font-black leading-none">{new Date(d.exam_date).getDate()}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wide mt-1">
             {new Date(d.exam_date).toLocaleString("en-US", { month: "short", year: "numeric" })}
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold">{d.subject}</h3>
-            <Badge variant="secondary">{d.exam_type}</Badge>
+            <h3 className="font-bold text-foreground text-base leading-snug">{d.subject}</h3>
+            <Badge variant="secondary" className="font-semibold text-[10px]">{d.exam_type}</Badge>
             {allBranches ? (
-              <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">All branches</Badge>
+              <Badge variant="outline" className="text-[10px] border-primary/30 text-primary font-bold">All branches</Badge>
             ) : (d.branches?.length ?? 0) > 1 ? (
               <Badge variant="outline" className="text-[10px]">Shared · {d.branches!.length} branches</Badge>
             ) : null}
             {d.pinned && <Badge className="bg-primary/10 text-primary border-primary/20" variant="outline"><Pin className="h-3 w-3 mr-1" />Pinned</Badge>}
           </div>
-          <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-3">
+          <div className="text-xs text-muted-foreground mt-1.5 flex flex-wrap gap-x-4 gap-y-1 font-medium">
             <span>{branchLabel} · Sem {d.semester}</span>
-            {d.exam_time && <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{d.exam_time}</span>}
-            {d.venue && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{d.venue}</span>}
+            {d.exam_time && <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-muted-foreground/80" />{d.exam_time}</span>}
+            {d.venue && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5 text-muted-foreground/80" />{d.venue}</span>}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={cn("font-medium", cd.status === "today" && "bg-warning/15 text-warning border-warning/30")}>
+        <div className="flex items-center gap-2 justify-end sm:justify-center">
+          <Badge variant="outline" className={cn("font-bold text-[10px] px-2.5 py-1", cd.status === "today" && "bg-warning/15 text-warning border-warning/30")}>
             {cd.label}
           </Badge>
           {canEdit && (
-            <>
-              <Button variant="ghost" size="icon" onClick={() => setEditOpen(true)} aria-label="Edit">
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" onClick={() => setEditOpen(true)} aria-label="Edit" className="h-9 w-9 rounded-full">
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={togglePin} aria-label="Pin">
+              <Button variant="ghost" size="icon" onClick={togglePin} aria-label="Pin" className="h-9 w-9 rounded-full">
                 <Pin className={cn("h-4 w-4", d.pinned && "fill-primary text-primary")} />
               </Button>
-              <Button variant="ghost" size="icon" onClick={remove} aria-label="Remove" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+              <Button variant="ghost" size="icon" onClick={remove} aria-label="Remove" className="h-9 w-9 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10">
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -292,55 +327,54 @@ function DatesheetFormDialog({
   }
 
   return (
-    <DialogContent>
+    <DialogContent className="max-w-lg rounded-3xl border shadow-elegant bg-card/95 backdrop-blur-md">
       <DialogHeader>
-        <DialogTitle>{editRecord ? "Edit datesheet" : "Post exam date"}</DialogTitle>
+        <DialogTitle className="text-base font-bold">{editRecord ? "Edit Datesheet entry" : "Post new examination"}</DialogTitle>
       </DialogHeader>
-      <form onSubmit={save} className="space-y-4">
-        <div>
-          <Label className="text-xs">Branch (optional)</Label>
-          <p className="text-[11px] text-muted-foreground mt-0.5 mb-2">
-            Leave empty — applies to <strong className="text-foreground">all branches</strong>. Select later when you need branch-specific exams.
+      <form onSubmit={save} className="space-y-4 mt-2">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Branch selector (optional)</Label>
+          <p className="text-[10px] text-muted-foreground leading-normal mb-1">
+            Leave unselected to apply to <strong className="text-foreground">all branches</strong>.
           </p>
           <BranchMultiPicker branches={branches} selected={selectedBranches} onChange={setSelectedBranches} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs">Semester</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Semester</Label>
             <Select value={semester} onValueChange={setSemester}>
-              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-              <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Sem {s}</SelectItem>)}</SelectContent>
+              <SelectTrigger className="h-10 rounded-xl text-xs"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectContent>{SEMESTERS.map((s) => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div>
-            <Label className="text-xs">Exam type</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Exam type</Label>
             <Select value={examType} onValueChange={setExamType}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-10 rounded-xl text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>{EXAM_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
             </Select>
           </div>
         </div>
-        <div>
-          <Label className="text-xs">Subject</Label>
-          <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. DBMS" />
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subject</Label>
+          <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Operating Systems" className="rounded-xl h-10 text-xs" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs">Date</Label>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date</Label>
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-xl h-10 text-xs" />
           </div>
-          <div>
-            <Label className="text-xs">Time</Label>
-            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Time</Label>
+            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="rounded-xl h-10 text-xs" />
           </div>
         </div>
-        <div>
-          <Label className="text-xs">Venue (optional)</Label>
-          <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="Hall / room" />
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Venue (optional)</Label>
+          <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="Hall 2A / Room 104" className="rounded-xl h-10 text-xs" />
         </div>
-        <Button type="submit" disabled={saving} className="w-full rounded-xl">
-          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          {editRecord ? "Save changes" : "Post"}
+        <Button type="submit" disabled={saving} className="w-full h-11 rounded-2xl text-xs font-semibold mt-2 shadow-soft">
+          {saving ? "Saving entry..." : editRecord ? "Save changes" : "Publish Schedule"}
         </Button>
       </form>
     </DialogContent>
