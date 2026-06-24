@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppLayout } from "@/components/app-layout";
 import { AuthProvider } from "@/lib/auth";
+import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import Upload from "./pages/Upload";
 import Contribute from "./pages/Contribute";
@@ -51,6 +52,7 @@ const App = () => (
             </AppLayout>
           </AuthProvider>
         </BrowserRouter>
+        <Analytics />
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
