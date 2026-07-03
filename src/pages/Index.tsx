@@ -4,6 +4,7 @@ import { EXAM_TYPES, SEMESTERS, YEARS, BRANCHES } from "@/lib/constants";
 import { useBranches } from "@/lib/use-branches";
 import { usePaperStars } from "@/lib/use-paper-stars";
 import { HeroSection } from "@/components/hero-section";
+import { LiveBackground } from "@/components/live-background";
 import { StatsBar } from "@/components/stats-bar";
 import { FeatureCards } from "@/components/feature-cards";
 import { RepeatedHighlight } from "@/components/repeated-highlight";
@@ -701,6 +702,9 @@ export default function Browse() {
       <Suspense fallback={null}>
         <AnnouncementBanners />
       </Suspense>
+
+      {/* Live animated interactive background */}
+      <LiveBackground />
 
       {/* Hero Section */}
       <HeroSection />
