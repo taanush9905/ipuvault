@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { SUBJECTS_BY_BRANCH_SEM } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
+import { LiveBackground } from "@/components/live-background";
+
 
 const baseNav = [
   { to: "/", label: "Browse", icon: BookOpen },
@@ -116,7 +118,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     : baseNav;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background font-sans">
+    <div className="min-h-screen flex flex-col bg-background font-sans relative isolate">
+      {pathname === "/" && <LiveBackground />}
       {/* Sticky Header */}
       <header className="sticky top-4 z-40 mx-auto w-full max-w-6xl px-4 transition-all duration-300 overflow-hidden">
         <div className="liquid-glass rounded-2xl px-4 sm:px-6 flex h-16 items-center justify-between gap-3 bg-[#0B1220]/75 backdrop-blur-xl shadow-[0_0_30px_rgba(0,0,0,0.5)]">
